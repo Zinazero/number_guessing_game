@@ -13,6 +13,7 @@ then
   echo -e "\nWelcome, $USERNAME! It looks like this is your first time here."
 
   # insert new user
+  INSERT_USER_RESULT=$($PSQL "INSERT INTO users (username) VALUES ('$USERNAME')")
 else
   # fetch user stats and store in variables
   echo $"$USERNAME_RESULT" | while IFS='|' read GAMES_PLAYED BEST_GAME
@@ -20,3 +21,6 @@ else
   echo -e "\nWelcome back, $USERNAME! You have played $GAMES_PLAYED games, and your best game took $BEST_GAME guesses."
   done
 fi
+
+
+
