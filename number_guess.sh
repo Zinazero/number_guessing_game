@@ -22,6 +22,12 @@ else
   done
 fi
 
+# get current games played so it can be incremented later
+GAMES_PLAYED_RESULT=$($PSQL "SELECT games_played FROM users WHERE username = '$USERNAME'")
+
+# get current best game so it can potentially be updated later
+BEST_GAME_RESULT=$($PSQL "SELECT best_game FROM users WHERE username = '$USERNAME'")
+
 # initialize secret number
 SECRET_NUMBER=$(( RANDOM % 1000 + 1 ))
 
@@ -43,9 +49,18 @@ NUMBER_GUESSER() {
   # if input matches the secret number
   elif [[ $GUESS -eq $SECRET_NUMBER ]]
   then
-    echo -e "\nYou guessed it in $NUMBER_OF_GUESSES tries. The secret number was $SECRET_NUMBER. Nice job!"
+    echo -e "You guessed it in $NUMBER_OF_GUESSES tries. The secret number was $SECRET_NUMBER. Nice job!"
 
-    #update games_played and best_game(if better than previous) in database
+    #update games_played in database
+    NEW_GAMES_PLAYED=$((GAMES_PLAYED_RESULT + 1))
+    UPDATE_GAMES_PLAYED=$($PSQL "UPDATE users SET games_played = $NEW_GAMES_PLAYED WHERE username = '$USERNAME'")
+
+    #update best_game if number of guess is lower than previous value
+    if [[ -z $BEST_GAME_RESULT || $NUMBER_OF_GUESSES -lt $BEST_GAME_RESULT ]]
+    then
+      UPDATE_BEST_GAME=$($PSQL "UPDATE users SET best_game = $NUMBER_OF_GUESSES WHERE username = '$USERNAME'")
+    fi
+
 
   # if input is greater than the secret number
   elif [[ $GUESS -gt $SECRET_NUMBER ]]
@@ -59,6 +74,5 @@ NUMBER_GUESSER() {
     NUMBER_GUESSER
   fi
 }
-
 
 NUMBER_GUESSER
