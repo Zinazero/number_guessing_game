@@ -22,5 +22,43 @@ else
   done
 fi
 
+# initialize secret number
+SECRET_NUMBER=$(( RANDOM % 1000 + 1 ))
+
+# initialize number of guesses at 0
+NUMBER_OF_GUESSES=0
+
+echo -e "\nGuess the secret number between 1 and 1000:"
+
+NUMBER_GUESSER() {
+  read GUESS
+  NUMBER_OF_GUESSES=$((NUMBER_OF_GUESSES + 1))
+
+  # if input is not an integer
+  if [[ ! $GUESS =~ ^[0-9]+$ ]]
+  then
+    echo -e "\nThat is not an integer, guess again:"
+    NUMBER_GUESSER
+
+  # if input matches the secret number
+  elif [[ $GUESS -eq $SECRET_NUMBER ]]
+  then
+    echo -e "\nYou guessed it in $NUMBER_OF_GUESSES tries. The secret number was $SECRET_NUMBER. Nice job!"
+
+    #update games_played and best_game(if better than previous) in database
+
+  # if input is greater than the secret number
+  elif [[ $GUESS -gt $SECRET_NUMBER ]]
+  then
+    echo -e "\nIt's lower than that, guess again:"
+    NUMBER_GUESSER
+
+  # if input is lower than the secret number
+  else
+    echo -e "\nIt's higher than that, guess again:"
+    NUMBER_GUESSER
+  fi
+}
 
 
+NUMBER_GUESSER
